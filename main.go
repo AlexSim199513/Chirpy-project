@@ -32,9 +32,9 @@ func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) resetHandler(w http.ResponseWriter, r *http.Request) {
-	cfg.fileserverHits.Store(0) // Use Store to set the counter back to 0 safely
+	cfg.fileserverHits.Store(0)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Counter reset to 0"))
 }
 
@@ -49,11 +49,11 @@ func main() {
 
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(fileServerHandler))
 
-	mux.HandleFunc("/healthz", healthzHandler)
+	mux.HandleFunc("GET /healthz", healthzHandler)
 
-	mux.HandleFunc("/metrics", apiCfg.metricsHandler)
+	mux.HandleFunc("GET /metrics", apiCfg.metricsHandler)
 
-	mux.HandleFunc("/reset", apiCfg.resetHandler)
+	mux.HandleFunc("POST /reset", apiCfg.resetHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
